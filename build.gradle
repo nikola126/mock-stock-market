@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'checkstyle'
+	id 'pmd'
 }
 
 group = 'com.stock'
@@ -30,4 +32,16 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+pmd {
+	consoleOutput = true
+	toolVersion = "6.38.0"
+	rulesMinimumPriority = 2
+	ruleSetFiles = files("config/pmd/custom-ruleset.xml")
+	ruleSets = []
+}
+
+task checkAll(type: GradleBuild){
+	tasks = ["clean", "checkstyleMain", "pmdMain"]
 }
