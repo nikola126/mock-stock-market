@@ -5,7 +5,6 @@ import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.exceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserNotFoundException;
-import com.stock.backend.models.User;
 import com.stock.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
