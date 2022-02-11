@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import com.stock.backend.dtos.NewUserDTO;
 import com.stock.backend.dtos.UpdateUserDTO;
+import com.stock.backend.dtos.LoginUserDTO;
+import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.exceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserNotFoundException;
@@ -33,24 +35,29 @@ public class UserService {
         return userRepository.getByUsernameAndPassword(userName, password);
     }
 
-    public User login(String userName, String password) throws UserNotFoundException {
-        Optional<User> user = getByUsernameAndPassword(userName, password);
+    public UserDTO login(LoginUserDTO loginUserDTO) throws UserNotFoundException {
+        Optional<User> user = getByUsernameAndPassword(loginUserDTO.getUsername(), loginUserDTO.getPassword());
 
         if (user.isEmpty()) {
             throw new UserNotFoundException("Wrong credentials provided!");
         } else {
-            return user.get();
+            UserDTO userDTO = new UserDTO();
+            userDTO.mapFromUser(user.get());
+            return userDTO;
         }
     }
 
-    public User addNewUser(NewUserDTO newUserDTO) throws UserAlreadyExistsException {
+    public UserDTO addNewUser(NewUserDTO newUserDTO) throws UserAlreadyExistsException {
 
         Optional<User> existingUser = getByUsername(newUserDTO.getUsername());
 
         if (existingUser.isEmpty()) {
             User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName());
             userRepository.save(newUser);
-            return newUser;
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.mapFromUser(newUser);
+            return userDTO;
         } else {
             throw new UserAlreadyExistsException("User with this username already exists!");
         }

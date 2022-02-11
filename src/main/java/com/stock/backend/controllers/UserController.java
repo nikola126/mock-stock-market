@@ -1,6 +1,8 @@
 package com.stock.backend.controllers;
 
 import com.stock.backend.dtos.NewUserDTO;
+import com.stock.backend.dtos.LoginUserDTO;
+import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.exceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserNotFoundException;
 import com.stock.backend.models.User;
@@ -8,7 +10,6 @@ import com.stock.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +23,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(path = "/register")
-    public User addUser(@RequestBody NewUserDTO newUserDTO) {
-        User newUser;
+    public UserDTO addUser(@RequestBody NewUserDTO newUserDTO) {
+        UserDTO newUser;
 
         try {
             newUser = userService.addNewUser(newUserDTO);
@@ -35,10 +36,9 @@ public class UserController {
     }
 
     @PostMapping(path = "/login")
-    public User login(@RequestBody String username, @RequestBody String password) {
+    public UserDTO login(@RequestBody LoginUserDTO loginUserDTO) {
         try {
-            User user = userService.login(username, password);
-            return user;
+            return userService.login(loginUserDTO);
         } catch (UserNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
