@@ -1,4 +1,4 @@
-package com.stock.backend.exceptions;
+package com.stock.backend.exceptions.UserExceptions;
 
 public class SamePasswordException extends Exception {
 

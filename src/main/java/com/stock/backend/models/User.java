@@ -7,19 +7,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Getter;
+import com.stock.backend.dtos.UserDTO;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long id;
 
     @Column(unique = true)
@@ -31,9 +29,23 @@ public class User {
     @Column
     private String displayName;
 
-    public User(String userName, String password, String displayName) {
-        this.username = userName;
+    @Column
+    private Double capital;
+
+    public User(String username, String password, String displayName, Double capital) {
+        this.username = username;
         this.password = password;
         this.displayName = displayName;
+        this.capital = capital;
+    }
+
+    public UserDTO mapToDTO() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(this.getUsername());
+        userDTO.setId(this.getId());
+        userDTO.setDisplayName(this.getDisplayName());
+        userDTO.setCapital(this.getCapital());
+
+        return userDTO;
     }
 }

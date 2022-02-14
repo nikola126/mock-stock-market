@@ -9,13 +9,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UserDTO {
+    private Long id;
     private String username;
     private String displayName;
-    private Long id;
+    private Double capital;
 
     public void mapFromUser(User user) {
+        this.id = user.getId();
         this.username = user.getUsername();
         this.displayName = user.getDisplayName();
-        this.id = user.getId();
+        this.capital = user.getCapital();
     }
 }

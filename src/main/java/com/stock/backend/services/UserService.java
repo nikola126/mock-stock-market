@@ -4,12 +4,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.stock.backend.dtos.NewUserDTO;
-import com.stock.backend.dtos.UpdateUserDTO;
+import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.UserDTO;
-import com.stock.backend.exceptions.SamePasswordException;
-import com.stock.backend.exceptions.UserAlreadyExistsException;
-import com.stock.backend.exceptions.UserNotFoundException;
+import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
+import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
+import com.stock.backend.exceptions.UserExceptions.UserNotFoundException;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -52,7 +51,7 @@ public class UserService {
         Optional<User> existingUser = getByUsername(newUserDTO.getUsername());
 
         if (existingUser.isEmpty()) {
-            User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName());
+            User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName(), newUserDTO.getCapital());
             userRepository.save(newUser);
 
             UserDTO userDTO = new UserDTO();
@@ -64,7 +63,7 @@ public class UserService {
 
     }
 
-    public User updatePassword(UpdateUserDTO updateUserDTO, String newPassword)
+    public User updatePassword(EditUserDTO updateUserDTO, String newPassword)
         throws SamePasswordException, UserNotFoundException {
 
         Optional<User> user = getByUsernameAndPassword(updateUserDTO.getUsername(), updateUserDTO.getPassword());
@@ -80,7 +79,7 @@ public class UserService {
         return user.get();
     }
 
-    public User updateDisplayName(UpdateUserDTO updateUserDTO, String newDisplayName)
+    public User updateDisplayName(EditUserDTO updateUserDTO, String newDisplayName)
         throws UserNotFoundException {
         Optional<User> user = getByUsernameAndPassword(updateUserDTO.getUsername(), updateUserDTO.getPassword());
 
@@ -91,5 +90,9 @@ public class UserService {
         }
 
         return user.get();
+    }
+
+    public void deleteUser(UserDTO userDTO) {
+        userRepository.deleteById(userDTO.getId());
     }
 }

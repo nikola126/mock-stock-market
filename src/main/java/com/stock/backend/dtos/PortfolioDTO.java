@@ -1,14 +1,16 @@
 package com.stock.backend.dtos;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateUserDTO {
-    private String username;
-    private String password;
-    private String displayName;
+@ToString
+public class PortfolioDTO {
+    List<AssetDTO> assets;
 }
