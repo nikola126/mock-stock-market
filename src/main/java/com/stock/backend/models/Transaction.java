@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Date;
 
 import com.stock.backend.dtos.TransactionDTO;
 import com.stock.backend.enums.Actions;
@@ -50,7 +49,7 @@ public class Transaction {
     private Double value;
 
     @Column
-    private Date date;
+    private Long date;
 
     public TransactionDTO mapToDTO() {
         System.out.println(this);

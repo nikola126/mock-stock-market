@@ -1,6 +1,5 @@
 package com.stock.backend.services;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -116,7 +115,7 @@ public class TransactionService {
         newTransaction.setAction(Actions.valueOf(transactionDTO.getAction()));
         newTransaction.setShares(transactionDTO.getShares());
         newTransaction.setValue(transactionDTO.getValue());
-        newTransaction.setDate(new Date(System.currentTimeMillis()));
+        newTransaction.setDate(System.currentTimeMillis());
         transactionRepository.save(newTransaction);
 
         // return full transaction list

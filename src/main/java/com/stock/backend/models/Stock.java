@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.sql.Date;
 
 import com.stock.backend.dtos.StockDTO;
 import lombok.Data;
@@ -33,9 +32,9 @@ public class Stock {
     private Double price;
 
     @Column
-    private Date lastUpdate;
+    private Long lastUpdate;
 
-    public Stock(String symbol, String name, Double price, Date lastUpdate) {
+    public Stock(String symbol, String name, Double price, Long lastUpdate) {
         this.symbol = symbol;
         this.name = name;
         this.price = price;

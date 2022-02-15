@@ -1,6 +1,5 @@
 package com.stock.backend.repositories;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +13,8 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     Optional<Stock> getByName(String name);
 
     @Query(nativeQuery = true,
-        value = "SELECT * FROM stock WHERE ABS(DATEDIFF(hour, :currentDate, last_update)) < :hourInterval LIMIT 4")
-    List<Stock> getStaleStocks(Date currentDate, Integer hourInterval);
+        value = "SELECT * FROM stocks WHERE "
+            + "(:currentTime - last_update) > :timeIntervalMs "
+            + "LIMIT :limit")
+    List<Stock> getStaleStocks(Long currentTime, Integer timeIntervalMs, Integer limit);
 }

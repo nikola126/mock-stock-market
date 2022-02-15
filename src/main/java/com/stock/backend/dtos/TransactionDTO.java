@@ -1,7 +1,5 @@
 package com.stock.backend.dtos;
 
-import java.sql.Date;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,5 +16,5 @@ public class TransactionDTO {
     private String action;
     private Integer shares;
     private Double value;
-    private Date date;
+    private Long date;
 }

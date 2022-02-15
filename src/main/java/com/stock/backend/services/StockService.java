@@ -1,20 +1,28 @@
 package com.stock.backend.services;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.stock.backend.controllers.ApiController;
+import com.stock.backend.dtos.QuoteDTO;
+import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.StockDTO;
+import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.models.Stock;
 import com.stock.backend.repositories.StockRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StockService {
     private final StockRepository stockRepository;
+    private final ApiController apiController;
 
-    public StockService(StockRepository stockRepository) {
+    private final Integer updateTimeIntervalMs = 1000 * 60 * 60 * 2;
+
+    public StockService(StockRepository stockRepository, ApiController apiController) {
         this.stockRepository = stockRepository;
+        this.apiController = apiController;
     }
 
     public Stock saveOrUpdateStock(StockDTO stockDTO) {
@@ -24,14 +32,14 @@ public class StockService {
             Stock newStock = new Stock();
             newStock.setName(stockDTO.getName());
             newStock.setSymbol(stockDTO.getSymbol());
-            newStock.setLastUpdate(new Date(System.currentTimeMillis()));
+            newStock.setLastUpdate(System.currentTimeMillis());
             newStock.setPrice(stockDTO.getPrice());
 
             stockRepository.save(newStock);
             return newStock;
         } else {
             previouslySaved.get().setPrice(stockDTO.getPrice());
-            previouslySaved.get().setLastUpdate(new Date(System.currentTimeMillis()));
+            previouslySaved.get().setLastUpdate(System.currentTimeMillis());
 
             stockRepository.save(previouslySaved.get());
             return previouslySaved.get();
@@ -41,4 +49,25 @@ public class StockService {
     public List<Stock> getAllStocks() {
         return stockRepository.findAll();
     }
+
+    // trigger API call every 16 seconds, updating stocks older than updateTimeIntervalMs
+    @Scheduled(fixedDelay = 1000 * 16, initialDelay = 1000 * 15)
+    public void scheduledStockUpdate() {
+        QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
+        List<Stock> staleStocks = stockRepository.getStaleStocks(System.currentTimeMillis(), updateTimeIntervalMs, 1);
+
+        for (Stock stock : staleStocks) {
+            quoteRequestDTO.setSymbol(stock.getSymbol());
+
+            try {
+                QuoteDTO quoteDTO = apiController.apiQuote(quoteRequestDTO);
+                stock.setPrice(quoteDTO.getLatestPrice());
+                stock.setLastUpdate(System.currentTimeMillis());
+                stockRepository.save(stock);
+            } catch (ApiException ignored) {
+                ;
+            }
+        }
+    }
+
 }

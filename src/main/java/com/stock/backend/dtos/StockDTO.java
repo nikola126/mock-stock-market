@@ -1,7 +1,5 @@
 package com.stock.backend.dtos;
 
-import java.sql.Date;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,5 +13,5 @@ public class StockDTO {
     private String symbol;
     private String name;
     private Double price;
-    private Date lastUpdate;
+    private Long lastUpdate;
 }
