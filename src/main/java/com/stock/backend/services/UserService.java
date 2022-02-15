@@ -3,10 +3,10 @@ package com.stock.backend.services;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.stock.backend.dtos.NewUserDTO;
 import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
-import com.stock.backend.dtos.UserDTO;
+import com.stock.backend.dtos.NewUserDTO;
+import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
 import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserExceptions.UserNotFoundException;
@@ -34,65 +34,75 @@ public class UserService {
         return userRepository.getByUsernameAndPassword(userName, password);
     }
 
-    public UserDTO login(LoginUserDTO loginUserDTO) throws UserNotFoundException {
+    public User login(LoginUserDTO loginUserDTO) throws UserNotFoundException {
         Optional<User> user = getByUsernameAndPassword(loginUserDTO.getUsername(), loginUserDTO.getPassword());
 
         if (user.isEmpty()) {
             throw new UserNotFoundException("Wrong credentials provided!");
         } else {
-            UserDTO userDTO = new UserDTO();
-            userDTO.mapFromUser(user.get());
-            return userDTO;
+            return user.get();
         }
     }
 
-    public UserDTO addNewUser(NewUserDTO newUserDTO) throws UserAlreadyExistsException {
+    public User addNewUser(NewUserDTO newUserDTO) throws UserAlreadyExistsException {
 
         Optional<User> existingUser = getByUsername(newUserDTO.getUsername());
 
         if (existingUser.isEmpty()) {
-            User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName(), newUserDTO.getCapital());
+            User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName(),
+                newUserDTO.getCapital());
             userRepository.save(newUser);
 
-            UserDTO userDTO = new UserDTO();
-            userDTO.mapFromUser(newUser);
-            return userDTO;
+            return newUser;
         } else {
             throw new UserAlreadyExistsException("User with this username already exists!");
         }
 
     }
 
-    public User updatePassword(EditUserDTO updateUserDTO, String newPassword)
-        throws SamePasswordException, UserNotFoundException {
+    public User updatePassword(EditUserDTO editUserDTO) throws SamePasswordException, UserNotFoundException {
 
-        Optional<User> user = getByUsernameAndPassword(updateUserDTO.getUsername(), updateUserDTO.getPassword());
+        Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());
 
         if (user.isEmpty()) {
             throw new UserNotFoundException("Wrong credentials provided!");
-        } else if (Objects.equals(user.get().getPassword(), newPassword)) {
+        } else if (Objects.equals(user.get().getPassword(), editUserDTO.getNewPassword())) {
             throw new SamePasswordException("Password is same as the old one!");
         } else {
-            user.get().setPassword(newPassword);
+            user.get().setPassword(editUserDTO.getNewPassword());
+            userRepository.save(user.get());
         }
 
         return user.get();
     }
 
-    public User updateDisplayName(EditUserDTO updateUserDTO, String newDisplayName)
-        throws UserNotFoundException {
-        Optional<User> user = getByUsernameAndPassword(updateUserDTO.getUsername(), updateUserDTO.getPassword());
+    public User updateDisplayName(EditUserDTO editUserDTO) throws UserNotFoundException {
+        Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());
 
         if (user.isEmpty()) {
             throw new UserNotFoundException("Wrong credentials provided!");
         } else {
-            user.get().setDisplayName(newDisplayName);
+            user.get().setDisplayName(editUserDTO.getNewDisplayName());
+            userRepository.save(user.get());
         }
 
         return user.get();
     }
 
-    public void deleteUser(UserDTO userDTO) {
-        userRepository.deleteById(userDTO.getId());
+    public User updateCapital(EditUserDTO editUserDTO) throws UserNotFoundException, NegativeCapitalChangeException {
+        Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("Wrong credentials provided!");
+        } else {
+            if (editUserDTO.getCapitalChange() < 0) {
+                throw new NegativeCapitalChangeException("Capital can only be added!");
+            }
+            user.get().setCapital(user.get().getCapital() + editUserDTO.getCapitalChange());
+            userRepository.save(user.get());
+        }
+
+        return user.get();
     }
+
 }

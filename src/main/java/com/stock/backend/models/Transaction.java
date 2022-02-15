@@ -10,31 +10,32 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import java.sql.Date;
 
 import com.stock.backend.dtos.TransactionDTO;
 import com.stock.backend.enums.Actions;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "transactions")
+@ToString
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Stock stock;
 
@@ -52,6 +53,8 @@ public class Transaction {
     private Date date;
 
     public TransactionDTO mapToDTO() {
+        System.out.println(this);
+
         TransactionDTO transactionDTO = new TransactionDTO();
 
         transactionDTO.setUserId(this.getUser().getId());

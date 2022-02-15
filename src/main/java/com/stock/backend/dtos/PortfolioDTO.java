@@ -12,5 +12,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class PortfolioDTO {
-    List<AssetDTO> assets;
+    private List<AssetDTO> assets;
 }

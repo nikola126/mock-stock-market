@@ -1,9 +1,13 @@
 package com.stock.backend.controllers;
 
+import java.util.Optional;
+
 import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.UserDTO;
+import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
+import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserExceptions.UserNotFoundException;
 import com.stock.backend.models.User;
@@ -28,7 +32,7 @@ public class UserController {
         UserDTO newUser;
 
         try {
-            newUser = userService.addNewUser(newUserDTO);
+            newUser = userService.addNewUser(newUserDTO).mapToDTO();
         } catch (UserAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -39,29 +43,42 @@ public class UserController {
     @PostMapping(path = "/login")
     public UserDTO login(@RequestBody LoginUserDTO loginUserDTO) {
         try {
-            return userService.login(loginUserDTO);
+            return userService.login(loginUserDTO).mapToDTO();
         } catch (UserNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
     @PostMapping(path = "/edit")
-    public UserDTO edit(@RequestBody EditUserDTO editUserDTO) {
+    public UserDTO edit(@RequestBody EditUserDTO editUserDTO) throws UserNotFoundException {
+        Optional<User> optionalUser = userService.getByUsername(editUserDTO.getUsername());
+
+        if (optionalUser.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials provided!");
+        }
+
         User editedUser = userService.getByUsername(editUserDTO.getUsername()).get();
-        if (editUserDTO.getPassword() != null) {
-            editedUser.setPassword(editUserDTO.getPassword());
-        } else if (editUserDTO.getDisplayName() != null) {
-            editedUser.setDisplayName(editUserDTO.getDisplayName());
-        } else if (editUserDTO.getCapital() != null) {
-            editedUser.setCapital(editUserDTO.getCapital());
+        if (editUserDTO.getNewPassword() != null) {
+            try {
+                return userService.updatePassword(editUserDTO).mapToDTO();
+            } catch (SamePasswordException | UserNotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+        } else if (editUserDTO.getNewDisplayName() != null) {
+            try {
+                return userService.updateDisplayName(editUserDTO).mapToDTO();
+            } catch (UserNotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+        } else if (editUserDTO.getCapitalChange() != null) {
+            try {
+                return userService.updateCapital(editUserDTO).mapToDTO();
+            } catch (UserNotFoundException | NegativeCapitalChangeException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
         }
 
         return editedUser.mapToDTO();
-    }
-
-    @PostMapping(path = "/delete")
-    public void delete(@RequestBody UserDTO userDTO) {
-        userService.deleteUser(userDTO);
     }
 
 }

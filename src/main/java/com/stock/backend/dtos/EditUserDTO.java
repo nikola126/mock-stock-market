@@ -10,6 +10,7 @@ import lombok.Setter;
 public class EditUserDTO {
     private String username;
     private String password;
-    private String displayName;
-    private Double capital;
+    private String newPassword;
+    private String newDisplayName;
+    private Double capitalChange;
 }

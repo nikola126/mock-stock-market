@@ -1,6 +1,7 @@
 package com.stock.backend.services;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.Optional;
 
 import com.stock.backend.dtos.StockDTO;
@@ -16,8 +17,8 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
-    public StockDTO saveOrUpdateStock(StockDTO stockDTO) {
-        Optional<Stock> previouslySaved = stockRepository.findBySymbol(stockDTO.getSymbol());
+    public Stock saveOrUpdateStock(StockDTO stockDTO) {
+        Optional<Stock> previouslySaved = stockRepository.getBySymbol(stockDTO.getSymbol());
 
         if (previouslySaved.isEmpty()) {
             Stock newStock = new Stock();
@@ -27,10 +28,17 @@ public class StockService {
             newStock.setPrice(stockDTO.getPrice());
 
             stockRepository.save(newStock);
-            return newStock.mapToDTO();
+            return newStock;
         } else {
+            previouslySaved.get().setPrice(stockDTO.getPrice());
             previouslySaved.get().setLastUpdate(new Date(System.currentTimeMillis()));
-            return previouslySaved.get().mapToDTO();
+
+            stockRepository.save(previouslySaved.get());
+            return previouslySaved.get();
         }
+    }
+
+    public List<Stock> getAllStocks() {
+        return stockRepository.findAll();
     }
 }

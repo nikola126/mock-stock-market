@@ -25,11 +25,11 @@ public class Asset {
     @Column(nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Stock stock;
 

@@ -9,10 +9,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface StockRepository extends JpaRepository<Stock, Long> {
-    Optional<Stock> findBySymbol(String symbol);
+    Optional<Stock> getBySymbol(String symbol);
 
-    Optional<Stock> findByName(String name);
+    Optional<Stock> getByName(String name);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM stock WHERE ABS(DATEDIFF(hour, :currentDate, last_update)) < :hourInterval")
+    @Query(nativeQuery = true,
+        value = "SELECT * FROM stock WHERE ABS(DATEDIFF(hour, :currentDate, last_update)) < :hourInterval LIMIT 4")
     List<Stock> getStaleStocks(Date currentDate, Integer hourInterval);
 }
