@@ -18,7 +18,7 @@ public class StockService {
     private final StockRepository stockRepository;
     private final ApiController apiController;
 
-    private final Integer updateTimeIntervalMs = 1000 * 60 * 60 * 2;
+    private final Integer updateTimeIntervalMs = 1000 * 60 * 15;
 
     public StockService(StockRepository stockRepository, ApiController apiController) {
         this.stockRepository = stockRepository;
@@ -50,8 +50,8 @@ public class StockService {
         return stockRepository.findAll();
     }
 
-    // trigger API call every 16 seconds, updating stocks older than updateTimeIntervalMs
-    @Scheduled(fixedDelay = 1000 * 16, initialDelay = 1000 * 15)
+    // trigger API call periodically, updating stocks older than updateTimeIntervalMs
+    @Scheduled(fixedDelay = 1000 * 60, initialDelay = 1000 * 15)
     public void scheduledStockUpdate() {
         QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
         List<Stock> staleStocks = stockRepository.getStaleStocks(System.currentTimeMillis(), updateTimeIntervalMs, 1);
@@ -65,7 +65,6 @@ public class StockService {
                 stock.setLastUpdate(System.currentTimeMillis());
                 stockRepository.save(stock);
             } catch (ApiException ignored) {
-                ;
             }
         }
     }

@@ -46,14 +46,12 @@ public class Transaction {
     private Integer shares;
 
     @Column
-    private Double value;
+    private Double price;
 
     @Column
     private Long date;
 
     public TransactionDTO mapToDTO() {
-        System.out.println(this);
-
         TransactionDTO transactionDTO = new TransactionDTO();
 
         transactionDTO.setUserId(this.getUser().getId());
@@ -61,7 +59,7 @@ public class Transaction {
         transactionDTO.setCompanyName(this.getStock().getName());
         transactionDTO.setAction(this.getAction().toString());
         transactionDTO.setShares(this.getShares());
-        transactionDTO.setValue(this.getValue());
+        transactionDTO.setPrice(this.getPrice());
         transactionDTO.setDate(this.getDate());
 
         return transactionDTO;

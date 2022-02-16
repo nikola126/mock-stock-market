@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.stock.backend.dtos.TransactionDTO;
 import com.stock.backend.dtos.UserDTO;
+import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.exceptions.InsufficientAssetsException;
 import com.stock.backend.exceptions.InsufficientFundsException;
 import com.stock.backend.exceptions.InvalidActionException;
@@ -34,7 +35,7 @@ public class TransactionController {
     public List<TransactionDTO> addTransaction(@RequestBody TransactionDTO transactionDTO) {
         try {
             return transactionService.addTransaction(transactionDTO).stream().map(Transaction::mapToDTO).toList();
-        } catch (InsufficientFundsException | InsufficientAssetsException | InvalidActionException e) {
+        } catch (InsufficientFundsException | InsufficientAssetsException | InvalidActionException | ApiException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

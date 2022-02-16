@@ -15,6 +15,6 @@ public class TransactionDTO {
     private String companyName;
     private String action;
     private Integer shares;
-    private Double value;
+    private Double price;
     private Long date;
 }

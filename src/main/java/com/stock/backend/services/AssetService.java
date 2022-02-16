@@ -9,6 +9,7 @@ import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.enums.Actions;
 import com.stock.backend.models.Asset;
 import com.stock.backend.models.Stock;
+import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.UserRepository;
@@ -43,7 +44,8 @@ public class AssetService {
     }
 
     public void saveOrUpdateAsset(UserDTO userDTO, TransactionDTO transactionDTO) {
-        Optional<Stock> stockOptional = stockRepository.getByName(transactionDTO.getCompanyName());
+
+        Optional<Stock> stockOptional = stockRepository.getBySymbol(transactionDTO.getSymbol());
         if (stockOptional.isEmpty()) {
             return;
         }
@@ -52,23 +54,34 @@ public class AssetService {
 
         Optional<Asset> assetOptional = assetsRepository.getByUserIdAndStockId(userDTO.getId(), stock.getId());
         if (assetOptional.isEmpty()) {
-            saveAsset(userDTO, transactionDTO);
-            return;
-        }
-        Asset assetToEdit = assetOptional.get();
+            // Save the new asset
+            Asset newAsset = new Asset();
+            User userRef = userRepository.getById(userDTO.getId());
+            Stock stockRef = stockRepository.getBySymbol(transactionDTO.getSymbol()).get();
 
-        // delete asset if all shares are sold
-        if (Objects.equals(transactionDTO.getShares(), assetToEdit.getShares())
-            && Objects.equals(transactionDTO.getAction(), Actions.SELL.name())) {
-            assetsRepository.delete(assetToEdit);
+            newAsset.setUser(userRef);
+            newAsset.setStock(stockRef);
+            newAsset.setShares(transactionDTO.getShares());
+            assetsRepository.save(newAsset);
         } else {
-            if (Objects.equals(transactionDTO.getAction(), Actions.SELL.name())) {
-                assetToEdit.setShares(assetToEdit.getShares() - transactionDTO.getShares());
+            // Edit asset
+            Asset assetToEdit = assetOptional.get();
+
+            // delete asset if all shares are sold
+            if (Objects.equals(transactionDTO.getShares(), assetToEdit.getShares())
+                && Objects.equals(transactionDTO.getAction(), Actions.SELL.toString())) {
+                assetsRepository.delete(assetToEdit);
             } else {
-                assetToEdit.setShares(assetToEdit.getShares() + transactionDTO.getShares());
+                if (Objects.equals(transactionDTO.getAction(), Actions.SELL.toString())) {
+                    assetToEdit.setShares(assetToEdit.getShares() - transactionDTO.getShares());
+                } else {
+                    assetToEdit.setShares(assetToEdit.getShares() + transactionDTO.getShares());
+                }
+
+                assetsRepository.save(assetToEdit);
             }
-            assetsRepository.save(assetToEdit);
         }
+
     }
 
 }

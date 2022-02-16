@@ -14,11 +14,13 @@ import javax.persistence.Table;
 import com.stock.backend.dtos.AssetDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "assets")
+@ToString
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
