@@ -15,6 +15,8 @@ import com.stock.backend.dtos.AssetDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Data
 @NoArgsConstructor
@@ -29,6 +31,7 @@ public class Asset {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @OneToOne(fetch = FetchType.EAGER)

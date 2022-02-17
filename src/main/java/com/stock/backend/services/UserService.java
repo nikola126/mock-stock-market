@@ -60,6 +60,16 @@ public class UserService {
 
     }
 
+    public void deleteUser(LoginUserDTO loginUserDTO) throws UserNotFoundException {
+        Optional<User> user = getByUsernameAndPassword(loginUserDTO.getUsername(), loginUserDTO.getPassword());
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("Wrong credentials provided!");
+        } else {
+            userRepository.deleteById(user.get().getId());
+        }
+    }
+
     public User updatePassword(EditUserDTO editUserDTO) throws SamePasswordException, UserNotFoundException {
 
         Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());

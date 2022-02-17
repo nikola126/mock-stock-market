@@ -18,6 +18,8 @@ import com.stock.backend.enums.Actions;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Data
 @NoArgsConstructor
@@ -32,6 +34,7 @@ public class Transaction {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @OneToOne(fetch = FetchType.EAGER)
