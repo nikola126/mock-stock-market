@@ -93,8 +93,9 @@ public class TransactionService {
             }
 
             // check if enough shares are owned
-            Optional<Asset> optionalAsset = assetRepository.getByUserIdAndStockId(transactionUser.getId(),
-                stockRepository.getBySymbol(optionalStock.get().getSymbol()).get().getId());
+            Stock savedStock = stockRepository.getBySymbol(optionalStock.get().getSymbol()).get();
+            Optional<Asset> optionalAsset =
+                assetRepository.getByUserIdAndStockId(transactionUser.getId(), savedStock.getId());
 
             if (optionalAsset.isEmpty()) {
                 throw new InsufficientAssetsException(

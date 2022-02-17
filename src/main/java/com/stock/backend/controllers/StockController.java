@@ -2,6 +2,8 @@ package com.stock.backend.controllers;
 
 import java.util.List;
 
+import com.stock.backend.dtos.QuoteDTO;
+import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.StockDTO;
 import com.stock.backend.models.Stock;
 import com.stock.backend.services.StockService;
@@ -18,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockController {
     @Autowired
     private StockService stockService;
+
+    @GetMapping(path = "/get")
+    public QuoteDTO getStock(@RequestBody QuoteRequestDTO quoteRequestDTO) {
+        return stockService.getStock(quoteRequestDTO);
+    }
 
     @PostMapping(path = "/save")
     public StockDTO saveStock(@RequestBody StockDTO stockDTO) {

@@ -94,7 +94,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void loginUserWithWrongPassword() throws Exception {
+    void throwExceptionWithWrongPassword() throws Exception {
         Mockito.when(userService.login(loginUserDTOArgumentCaptor.capture())).thenThrow(new UserNotFoundException(""));
 
         assertThrows(ResponseStatusException.class, () -> {
@@ -103,7 +103,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void loginUserWithWrongUsername() throws Exception {
+    void throwExceptionWithWrongUsername() throws Exception {
         Mockito.when(userService.login(loginUserDTOArgumentCaptor.capture())).thenThrow(new UserNotFoundException(""));
 
         assertThrows(ResponseStatusException.class, () -> {
