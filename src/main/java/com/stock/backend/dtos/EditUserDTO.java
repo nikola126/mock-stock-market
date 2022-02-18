@@ -12,5 +12,6 @@ public class EditUserDTO {
     private String password;
     private String newPassword;
     private String newDisplayName;
+    private String newApiToken;
     private Double capitalChange;
 }

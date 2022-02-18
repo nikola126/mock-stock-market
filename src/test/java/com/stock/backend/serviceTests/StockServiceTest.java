@@ -15,6 +15,7 @@ import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.StockDTO;
 import com.stock.backend.models.Stock;
 import com.stock.backend.repositories.StockRepository;
+import com.stock.backend.repositories.UserRepository;
 import com.stock.backend.services.StockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ public class StockServiceTest {
     @InjectMocks
     StockService stockService;
     @Mock
+    UserRepository userRepository;
+    @Mock
     StockRepository stockRepository;
     @Mock
     ApiController apiController;
@@ -47,7 +50,7 @@ public class StockServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         apiConfiguration = new ApiConfiguration();
-        stockService = new StockService(stockRepository, apiController);
+        stockService = new StockService(userRepository, stockRepository, apiController);
 
         quoteRequestDTO = new QuoteRequestDTO();
         stockDTO = new StockDTO();
@@ -90,7 +93,7 @@ public class StockServiceTest {
     void saveNewStockInRepository() {
         Mockito.when(apiController.getQuote(any())).thenReturn(new QuoteDTO());
         Mockito.when(stockRepository.getBySymbol(any())).thenReturn(Optional.empty());
-        stockService.saveOrUpdateStock(stockDTO);
+        stockService.saveOrUpdateStock(stockDTO, false);
 
         verify(stockRepository).save(any());
     }
@@ -98,7 +101,7 @@ public class StockServiceTest {
     @Test
     void updatePriceInStockRepositoryWhenUpdatingStock() {
         Mockito.when(stockRepository.getBySymbol(any())).thenReturn(Optional.of(new Stock()));
-        stockService.saveOrUpdateStock(stockDTO);
+        stockService.saveOrUpdateStock(stockDTO, false);
 
         verify(stockRepository).save(any());
     }

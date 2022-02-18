@@ -69,11 +69,15 @@ public class TransactionService {
             throw new InvalidActionException("Invalid action provided!");
         }
 
-        // update share value from stock repository or by API call
+        // get latest stock value
         Optional<Stock> optionalStock = stockRepository.getBySymbol(transactionDTO.getSymbol());
         if (optionalStock.isEmpty()) {
+            // update share value by API call
             QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
             quoteRequestDTO.setSymbol(transactionDTO.getSymbol());
+            if (transactionUser.getApiToken() != null) {
+                quoteRequestDTO.setToken(transactionUser.getApiToken());
+            }
 
             try {
                 QuoteDTO quoteDTO = apiController.apiQuote(quoteRequestDTO);
@@ -82,6 +86,7 @@ public class TransactionService {
                 throw new ApiException("API Exception");
             }
         } else {
+            // or by getting it from repository
             transactionDTO.setPrice(optionalStock.get().getPrice());
         }
 
@@ -89,7 +94,7 @@ public class TransactionService {
             // check if any shares are owned (should be present in the stock repository)
             if (optionalStock.isEmpty()) {
                 throw new InsufficientAssetsException(
-                    "You don't own any assets from " + transactionDTO.getCompanyName());
+                    "You don't own any shares from " + transactionDTO.getCompanyName());
             }
 
             // check if enough shares are owned
@@ -99,13 +104,13 @@ public class TransactionService {
 
             if (optionalAsset.isEmpty()) {
                 throw new InsufficientAssetsException(
-                    "You don't own any assets from " + transactionDTO.getCompanyName());
+                    "You don't own any shares from " + transactionDTO.getCompanyName());
             }
 
             // check for sufficient shares to sell
             if (optionalAsset.get().getShares() < transactionDTO.getShares()) {
                 throw new InsufficientAssetsException(
-                    "You don't own enough assets from " + transactionDTO.getCompanyName());
+                    "You don't own enough shares from " + transactionDTO.getCompanyName());
             }
 
         } else {
@@ -116,12 +121,13 @@ public class TransactionService {
         }
 
         // save/update stock (transaction should always contain the latest price data)
+        Boolean saveAfterTransaction = true;
         StockDTO newStockDTO = new StockDTO();
-
         newStockDTO.setName(transactionDTO.getCompanyName());
         newStockDTO.setSymbol(transactionDTO.getSymbol());
         newStockDTO.setPrice(transactionDTO.getPrice());
-        stockService.saveOrUpdateStock(newStockDTO);
+
+        stockService.saveOrUpdateStock(newStockDTO, saveAfterTransaction);
 
         // save/update asset
         assetService.saveOrUpdateAsset(transactionUser.mapToDTO(), transactionDTO);
@@ -134,7 +140,7 @@ public class TransactionService {
             transactionUser.setCapital(currentCapital - transactionDTO.getShares() * transactionDTO.getPrice());
         }
 
-        // add transaction
+        // add transaction to repository
         Transaction newTransaction = new Transaction();
         Stock newStock = stockRepository.getBySymbol(transactionDTO.getSymbol()).get();
 

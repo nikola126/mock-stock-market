@@ -123,7 +123,7 @@ public class TransactionServiceTest {
         Mockito.when(userService.getById(any())).thenReturn(mockedUser);
         Mockito.when(stockRepository.getBySymbol(anyString())).thenReturn(Optional.empty(), Optional.of(new Stock()));
         Mockito.when(apiController.apiQuote(any())).thenReturn(mockedQuoteDTO);
-        Mockito.when(stockService.saveOrUpdateStock(any())).thenReturn(new Stock());
+        Mockito.when(stockService.saveOrUpdateStock(any(), any())).thenReturn(new Stock());
 
         transactionService.addTransaction(mockedTransactionDTO);
 

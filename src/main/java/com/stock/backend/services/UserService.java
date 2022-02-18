@@ -3,9 +3,13 @@ package com.stock.backend.services;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.stock.backend.controllers.ApiController;
 import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
+import com.stock.backend.dtos.QuoteRequestDTO;
+import com.stock.backend.exceptions.ApiExceptions.ApiException;
+import com.stock.backend.exceptions.UserExceptions.InvalidApiTokenException;
 import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
 import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
@@ -16,9 +20,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+    private final ApiController apiController;
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ApiController apiController) {
+        this.apiController = apiController;
         this.userRepository = userRepository;
     }
 
@@ -96,6 +102,28 @@ public class UserService {
             userRepository.save(user.get());
         }
 
+        return user.get();
+    }
+
+    public User updateApiToken(EditUserDTO editUserDTO) throws UserNotFoundException, InvalidApiTokenException {
+        Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("Wrong credentials provided!");
+        } else {
+            try {
+                QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
+                quoteRequestDTO.setSymbol("AAPL");
+                quoteRequestDTO.setToken(editUserDTO.getNewApiToken());
+
+                apiController.apiQuote(quoteRequestDTO);
+            } catch (ApiException e) {
+                throw new InvalidApiTokenException("This API token is invalid!");
+            }
+
+            user.get().setApiToken(editUserDTO.getNewApiToken());
+            userRepository.save(user.get());
+        }
         return user.get();
     }
 

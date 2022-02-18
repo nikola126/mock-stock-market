@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class QuoteRequestDTO {
+    private Long userId;
     private String symbol;
     private String token;
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
+import com.stock.backend.controllers.ApiController;
 import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
@@ -30,6 +31,8 @@ public class UserServiceTest {
     @InjectMocks
     UserService userService;
     @Mock
+    ApiController apiController;
+    @Mock
     UserRepository userRepository;
 
     @Captor
@@ -51,7 +54,7 @@ public class UserServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userRepository);
+        userService = new UserService(userRepository, apiController);
 
         expectedUser = new User();
         expectedUser.setUsername("testUsername");

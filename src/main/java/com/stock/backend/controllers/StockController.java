@@ -28,12 +28,12 @@ public class StockController {
 
     @PostMapping(path = "/save")
     public StockDTO saveStock(@RequestBody StockDTO stockDTO) {
-        return stockService.saveOrUpdateStock(stockDTO).mapToDTO();
+        return stockService.saveOrUpdateStock(stockDTO, false).mapToDTO();
     }
 
     @PostMapping(path = "/update")
     public StockDTO updateStock(@RequestBody StockDTO stockDTO) {
-        return stockService.saveOrUpdateStock(stockDTO).mapToDTO();
+        return stockService.saveOrUpdateStock(stockDTO, false).mapToDTO();
     }
 
     @GetMapping(path = "/all")

@@ -32,6 +32,9 @@ public class User {
     private String displayName;
 
     @Column
+    private String apiToken;
+
+    @Column
     private Double capital;
 
     public User(String username, String password, String displayName, Double capital) {

@@ -10,14 +10,15 @@ import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.StockDTO;
 import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.models.Stock;
+import com.stock.backend.models.User;
 import com.stock.backend.repositories.StockRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.stock.backend.repositories.UserRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class StockService {
+    private final UserRepository userRepository;
     private final StockRepository stockRepository;
     private final ApiController apiController;
 
@@ -25,16 +26,28 @@ public class StockService {
 
     private final Integer updateTimeIntervalMs = 1000 * 60 * 15;
 
-    public StockService(StockRepository stockRepository, ApiController apiController) {
+    public StockService(UserRepository userRepository, StockRepository stockRepository, ApiController apiController) {
+        this.userRepository = userRepository;
         this.stockRepository = stockRepository;
         this.apiController = apiController;
     }
 
     public QuoteDTO getStock(QuoteRequestDTO quoteRequestDTO) {
-        // trigger an API call
-        if (quoteRequestDTO.getToken() == null) {
+        // attach API token if userId is provided
+        if (quoteRequestDTO.getUserId() != null) {
+            User knownUser = userRepository.getById(quoteRequestDTO.getUserId());
+
+            if (knownUser != null && knownUser.getApiToken() != null) {
+                quoteRequestDTO.setToken(knownUser.getApiToken());
+            } else {
+                quoteRequestDTO.setToken(apiConfiguration.getDefaultToken());
+            }
+
+        } else {
             quoteRequestDTO.setToken(apiConfiguration.getDefaultToken());
         }
+
+        // trigger an API call
         QuoteDTO quoteDTO = new QuoteDTO();
         quoteDTO = apiController.getQuote(quoteRequestDTO);
 
@@ -50,10 +63,22 @@ public class StockService {
         return quoteDTO;
     }
 
-    public Stock saveOrUpdateStock(StockDTO stockDTO) {
+    public Stock saveOrUpdateStock(StockDTO stockDTO, Boolean afterTransaction) {
         Optional<Stock> previouslySaved = stockRepository.getBySymbol(stockDTO.getSymbol());
 
-        if (previouslySaved.isEmpty()) {
+        if (previouslySaved.isEmpty() && afterTransaction) {
+            // following a transaction, the stockDTO contains the latest data
+            // just save in repository
+            Stock newStock = new Stock();
+            newStock.setName(stockDTO.getName());
+            newStock.setSymbol(stockDTO.getSymbol());
+            newStock.setLastUpdate(System.currentTimeMillis());
+            newStock.setPrice(stockDTO.getPrice());
+
+            stockRepository.save(newStock);
+            return newStock;
+        } else if (previouslySaved.isEmpty()) {
+            // set with the latest data and save in repository
             Stock newStock = new Stock();
             QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
             quoteRequestDTO.setSymbol(stockDTO.getSymbol());
@@ -75,6 +100,7 @@ public class StockService {
             stockRepository.save(previouslySaved.get());
             return previouslySaved.get();
         }
+
     }
 
     public List<Stock> getAllStocks() {

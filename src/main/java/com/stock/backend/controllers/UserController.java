@@ -4,6 +4,7 @@ import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
 import com.stock.backend.dtos.UserDTO;
+import com.stock.backend.exceptions.UserExceptions.InvalidApiTokenException;
 import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
 import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
@@ -74,6 +75,12 @@ public class UserController {
             try {
                 return userService.updateCapital(editUserDTO).mapToDTO();
             } catch (UserNotFoundException | NegativeCapitalChangeException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+        } else if (editUserDTO.getNewApiToken() != null) {
+            try {
+                return userService.updateApiToken(editUserDTO).mapToDTO();
+            } catch (InvalidApiTokenException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
         } else {
