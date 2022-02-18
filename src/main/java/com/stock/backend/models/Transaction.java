@@ -58,12 +58,15 @@ public class Transaction {
         TransactionDTO transactionDTO = new TransactionDTO();
 
         transactionDTO.setUserId(this.getUser().getId());
-        transactionDTO.setSymbol(this.getStock().getSymbol());
-        transactionDTO.setCompanyName(this.getStock().getName());
         transactionDTO.setAction(this.getAction().toString());
-        transactionDTO.setShares(this.getShares());
         transactionDTO.setPrice(this.getPrice());
         transactionDTO.setDate(this.getDate());
+
+        if (this.getStock() != null) {
+            transactionDTO.setSymbol(this.getStock().getSymbol());
+            transactionDTO.setCompanyName(this.getStock().getName());
+            transactionDTO.setShares(this.getShares());
+        }
 
         return transactionDTO;
     }

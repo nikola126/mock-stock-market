@@ -2,6 +2,8 @@ package com.stock.backend.serviceTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 
@@ -9,10 +11,12 @@ import com.stock.backend.controllers.ApiController;
 import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
+import com.stock.backend.exceptions.InvalidActionException;
 import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
 import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserNotFoundException;
 import com.stock.backend.models.User;
+import com.stock.backend.repositories.TransactionRepository;
 import com.stock.backend.repositories.UserRepository;
 import com.stock.backend.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +36,8 @@ public class UserServiceTest {
     UserService userService;
     @Mock
     ApiController apiController;
+    @Mock
+    TransactionRepository transactionRepository;
     @Mock
     UserRepository userRepository;
 
@@ -54,7 +60,7 @@ public class UserServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userRepository, apiController);
+        userService = new UserService(userRepository, transactionRepository, apiController);
 
         expectedUser = new User();
         expectedUser.setUsername("testUsername");
@@ -142,7 +148,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUserCapital() throws UserNotFoundException, NegativeCapitalChangeException {
+    void updateUserCapital() throws UserNotFoundException, NegativeCapitalChangeException, InvalidActionException {
         Mockito.when(
                 userRepository.getByUsernameAndPassword(
                     usernameCaptor.capture(), passwordCaptor.capture()
@@ -153,6 +159,7 @@ public class UserServiceTest {
         User updatedUser = userService.updateCapital(editUserDTO);
 
         assertEquals(newUser.getCapital(), updatedUser.getCapital());
+        verify(transactionRepository).save(any());
     }
 
     @Test

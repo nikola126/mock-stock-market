@@ -8,23 +8,30 @@ import com.stock.backend.dtos.EditUserDTO;
 import com.stock.backend.dtos.LoginUserDTO;
 import com.stock.backend.dtos.NewUserDTO;
 import com.stock.backend.dtos.QuoteRequestDTO;
+import com.stock.backend.enums.Actions;
 import com.stock.backend.exceptions.ApiExceptions.ApiException;
+import com.stock.backend.exceptions.InvalidActionException;
 import com.stock.backend.exceptions.UserExceptions.InvalidApiTokenException;
 import com.stock.backend.exceptions.UserExceptions.NegativeCapitalChangeException;
 import com.stock.backend.exceptions.UserExceptions.SamePasswordException;
 import com.stock.backend.exceptions.UserExceptions.UserAlreadyExistsException;
 import com.stock.backend.exceptions.UserExceptions.UserNotFoundException;
+import com.stock.backend.models.Transaction;
 import com.stock.backend.models.User;
+import com.stock.backend.repositories.TransactionRepository;
 import com.stock.backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     private final ApiController apiController;
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, ApiController apiController) {
+    public UserService(UserRepository userRepository, TransactionRepository transactionRepository,
+                       ApiController apiController) {
         this.apiController = apiController;
+        this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
     }
 
@@ -58,6 +65,14 @@ public class UserService {
             User newUser = new User(newUserDTO.getUsername(), newUserDTO.getPassword(), newUserDTO.getDisplayName(),
                 newUserDTO.getCapital());
             userRepository.save(newUser);
+
+            // add capital transaction
+            Transaction newTransaction = new Transaction();
+            newTransaction.setUser(newUser);
+            newTransaction.setAction(Actions.ADD);
+            newTransaction.setPrice(newUserDTO.getCapital());
+            newTransaction.setDate(System.currentTimeMillis());
+            transactionRepository.save(newTransaction);
 
             return newUser;
         } else {
@@ -127,7 +142,8 @@ public class UserService {
         return user.get();
     }
 
-    public User updateCapital(EditUserDTO editUserDTO) throws UserNotFoundException, NegativeCapitalChangeException {
+    public User updateCapital(EditUserDTO editUserDTO)
+        throws UserNotFoundException, NegativeCapitalChangeException, InvalidActionException {
         Optional<User> user = getByUsernameAndPassword(editUserDTO.getUsername(), editUserDTO.getPassword());
 
         if (user.isEmpty()) {
@@ -136,8 +152,19 @@ public class UserService {
             if (editUserDTO.getCapitalChange() < 0) {
                 throw new NegativeCapitalChangeException("Capital can only be added!");
             }
-            user.get().setCapital(user.get().getCapital() + editUserDTO.getCapitalChange());
+            Double newCapital = user.get().getCapital() + editUserDTO.getCapitalChange();
+
+            // update user capital
+            user.get().setCapital(newCapital);
             userRepository.save(user.get());
+
+            // add capital transaction
+            Transaction newTransaction = new Transaction();
+            newTransaction.setUser(user.get());
+            newTransaction.setAction(Actions.ADD);
+            newTransaction.setPrice(editUserDTO.getCapitalChange());
+            newTransaction.setDate(System.currentTimeMillis());
+            transactionRepository.save(newTransaction);
         }
 
         return user.get();
