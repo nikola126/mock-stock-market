@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  postgresqlDB:
+    image: postgres
+    restart: always
+    container_name: stockDB
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  backend:
+    build: .
+    container_name: stockBACKEND
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgresqlDB
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresqlDB:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+networks:
+  default:
+    name: stock
