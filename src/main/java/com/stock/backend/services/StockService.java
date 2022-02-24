@@ -93,7 +93,25 @@ public class StockService {
 
             stockRepository.save(newStock);
             return newStock;
-        } else {
+        }
+        else if (!afterTransaction) {
+            // user has triggered a manual API update
+            // set with the latest data and save in repository
+            // TODO Attach personal API token
+            QuoteRequestDTO quoteRequestDTO = new QuoteRequestDTO();
+            quoteRequestDTO.setSymbol(stockDTO.getSymbol());
+            quoteRequestDTO.setToken(apiConfiguration.getDefaultToken());
+
+            QuoteDTO quoteDTO = apiController.getQuote(quoteRequestDTO);
+
+            previouslySaved.get().setPrice(quoteDTO.getLatestPrice());
+            previouslySaved.get().setLastUpdate(System.currentTimeMillis());
+
+            stockRepository.save(previouslySaved.get());
+            return previouslySaved.get();
+        }
+
+        else {
             previouslySaved.get().setPrice(stockDTO.getPrice());
             previouslySaved.get().setLastUpdate(System.currentTimeMillis());
 

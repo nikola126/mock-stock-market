@@ -9,6 +9,7 @@ import com.stock.backend.services.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,7 @@ public class AssetController {
     @Autowired
     private AssetService assetService;
 
-    @GetMapping(path = "/get")
+    @PostMapping(path = "/get")
     public List<AssetDTO> getAllForUser(@RequestBody UserDTO userDTO) {
         return assetService.getAllForUser(userDTO).stream().map(Asset::mapToDTO).toList();
     }

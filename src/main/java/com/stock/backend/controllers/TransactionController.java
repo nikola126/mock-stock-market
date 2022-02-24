@@ -26,7 +26,7 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping(path = "/get")
+    @PostMapping(path = "/get")
     public List<TransactionDTO> getAllForUser(@RequestBody UserDTO userDTO) {
         return transactionService.getAllForUser(userDTO).stream().map(Transaction::mapToDTO).toList();
     }

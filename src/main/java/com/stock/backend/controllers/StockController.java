@@ -21,7 +21,7 @@ public class StockController {
     @Autowired
     private StockService stockService;
 
-    @GetMapping(path = "/get")
+    @PostMapping(path = "/get")
     public QuoteDTO getStock(@RequestBody QuoteRequestDTO quoteRequestDTO) {
         return stockService.getStock(quoteRequestDTO);
     }

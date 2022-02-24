@@ -101,6 +101,7 @@ public class StockServiceTest {
     @Test
     void updatePriceInStockRepositoryWhenUpdatingStock() {
         Mockito.when(stockRepository.getBySymbol(any())).thenReturn(Optional.of(new Stock()));
+        Mockito.when(apiController.getQuote(any())).thenReturn(new QuoteDTO());
         stockService.saveOrUpdateStock(stockDTO, false);
 
         verify(stockRepository).save(any());
