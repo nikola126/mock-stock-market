@@ -6,7 +6,7 @@ WORKDIR /home/gradle/app/
 RUN gradle bootjar
 
 FROM openjdk:latest as runtime
-EXPOSE 8081
+EXPOSE 8080
 WORKDIR /app/
 COPY --from=build /home/gradle/app/build/libs/*.jar /app/spring-boot-application.jar
 CMD java -jar /app/spring-boot-application.jar
