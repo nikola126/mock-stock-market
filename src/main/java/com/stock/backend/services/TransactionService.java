@@ -1,6 +1,5 @@
 package com.stock.backend.services;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -9,7 +8,7 @@ import com.stock.backend.dtos.QuoteDTO;
 import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.StockDTO;
 import com.stock.backend.dtos.TransactionDTO;
-import com.stock.backend.dtos.UserDTO;
+import com.stock.backend.dtos.TransactionSummaryDTO;
 import com.stock.backend.enums.Actions;
 import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.exceptions.InsufficientAssetsException;
@@ -22,6 +21,8 @@ import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.TransactionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,13 +48,19 @@ public class TransactionService {
         this.apiController = apiController;
     }
 
-    public List<Transaction> getAllForUser(UserDTO userDTO) {
-        List<Transaction> transactions = transactionRepository.getAllByUserId(userDTO.getId());
+    public Page<TransactionDTO> getAllForUser(TransactionSummaryDTO transactionSummaryDTO, Pageable pageable) {
+        Page<Transaction> transactions;
 
-        return transactions;
+        if (transactionSummaryDTO.getActions() == null) {
+                transactions = transactionRepository.getAllByUserId(transactionSummaryDTO.getUserId(), pageable);
+        } else {
+            transactions =
+                transactionRepository.getAllByUserIdByAction(transactionSummaryDTO.getUserId(), transactionSummaryDTO.getActions(), pageable);
+        }
+        return transactions.map(Transaction::mapToDTO);
     }
 
-    public List<Transaction> addTransaction(TransactionDTO transactionDTO)
+    public void addTransaction(TransactionDTO transactionDTO)
         throws InsufficientFundsException, InvalidActionException, InsufficientAssetsException, ApiException {
         // get user
         User transactionUser = userService.getById(transactionDTO.getUserId());
@@ -151,8 +158,5 @@ public class TransactionService {
         newTransaction.setPrice(transactionDTO.getPrice());
         newTransaction.setDate(System.currentTimeMillis());
         transactionRepository.save(newTransaction);
-
-        // return full transaction list
-        return getAllForUser(transactionUser.mapToDTO());
     }
 }

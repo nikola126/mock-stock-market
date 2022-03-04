@@ -3,10 +3,9 @@ package com.stock.backend.controllerTests;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-
 import com.stock.backend.controllers.TransactionController;
 import com.stock.backend.dtos.TransactionDTO;
+import com.stock.backend.dtos.TransactionSummaryDTO;
 import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.exceptions.InsufficientAssetsException;
@@ -23,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,32 +36,41 @@ public class TransactionControllerTest {
 
     UserDTO userDTO;
     TransactionDTO transactionDTO;
+    TransactionSummaryDTO transactionSummaryDTO;
 
     @Captor
     ArgumentCaptor<UserDTO> userDTOArgumentCaptor;
     @Captor
     ArgumentCaptor<TransactionDTO> transactionDTOArgumentCaptor;
+    @Captor
+    ArgumentCaptor<TransactionSummaryDTO> transactionSummaryDTOArgumentCaptor;
+    @Captor
+    ArgumentCaptor<Pageable> pageableArgumentCaptor;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
         userDTO = new UserDTO();
         transactionDTO = new TransactionDTO();
+        transactionSummaryDTO = new TransactionSummaryDTO();
     }
 
     @Test
     void getAllTransactions() {
-        Mockito.when(transactionService.getAllForUser(userDTOArgumentCaptor.capture())).thenReturn(new ArrayList<>());
+        Page transactionPage = Mockito.mock(Page.class);
+        Pageable pageable = Mockito.mock(Pageable.class);
+        Mockito.when(
+                transactionService.getAllForUser(transactionSummaryDTOArgumentCaptor.capture(),
+                    pageableArgumentCaptor.capture()))
+            .thenReturn(transactionPage);
 
-        transactionController.getAllForUser(userDTO);
-        verify(transactionService).getAllForUser(userDTO);
+        transactionController.getAllForUser(transactionSummaryDTO, pageable);
+        verify(transactionService).getAllForUser(transactionSummaryDTO, pageable);
     }
 
     @Test
     void addTransaction()
         throws InvalidActionException, InsufficientFundsException, InsufficientAssetsException, ApiException {
-        Mockito.when(transactionService.addTransaction(transactionDTOArgumentCaptor.capture()))
-            .thenReturn(new ArrayList<>());
 
         transactionController.addTransaction(transactionDTO);
         verify(transactionService).addTransaction(transactionDTO);
@@ -69,8 +79,9 @@ public class TransactionControllerTest {
     @Test
     void throwExceptionOnTransactionWithInvalidData()
         throws InvalidActionException, InsufficientFundsException, InsufficientAssetsException, ApiException {
-        Mockito.when(transactionService.addTransaction(transactionDTOArgumentCaptor.capture()))
-            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+
+        Mockito.doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST))
+            .when(transactionService).addTransaction(transactionDTOArgumentCaptor.capture());
 
         assertThrows(ResponseStatusException.class, () -> {
             transactionController.addTransaction(transactionDTO);

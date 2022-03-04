@@ -5,14 +5,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import com.stock.backend.controllers.ApiController;
 import com.stock.backend.dtos.QuoteDTO;
-import com.stock.backend.dtos.QuoteRequestDTO;
 import com.stock.backend.dtos.TransactionDTO;
+import com.stock.backend.dtos.TransactionSummaryDTO;
 import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.exceptions.ApiExceptions.ApiException;
 import com.stock.backend.exceptions.InsufficientAssetsException;
@@ -20,7 +18,6 @@ import com.stock.backend.exceptions.InsufficientFundsException;
 import com.stock.backend.exceptions.InvalidActionException;
 import com.stock.backend.models.Asset;
 import com.stock.backend.models.Stock;
-import com.stock.backend.models.Transaction;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
@@ -40,6 +37,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
@@ -64,9 +63,12 @@ public class TransactionServiceTest {
 
     @Captor
     ArgumentCaptor<Long> longArgumentCaptor;
+    @Captor
+    ArgumentCaptor<Pageable> pageableArgumentCaptor;
 
     UserDTO userDTO;
     TransactionDTO transactionDTO;
+    TransactionSummaryDTO transactionSummaryDTO;
 
     @BeforeEach
     void setup() {
@@ -77,15 +79,17 @@ public class TransactionServiceTest {
 
         userDTO = new UserDTO();
         transactionDTO = new TransactionDTO();
+        transactionSummaryDTO = new TransactionSummaryDTO();
 
     }
 
     @Test
     void returnListOfAllTransactions() {
-        Mockito.when(transactionRepository.getAllByUserId(longArgumentCaptor.capture())).thenReturn(new ArrayList<>());
+        Page transactionPage = Mockito.mock(Page.class);
+        Mockito.when(transactionRepository.getAllByUserId(longArgumentCaptor.capture(), pageableArgumentCaptor.capture())).thenReturn(transactionPage);
 
-        transactionService.getAllForUser(userDTO);
-        verify(transactionRepository).getAllByUserId(userDTO.getId());
+        transactionService.getAllForUser(transactionSummaryDTO, Pageable.unpaged());
+        verify(transactionRepository).getAllByUserId(userDTO.getId(), Pageable.unpaged());
     }
 
     @Test

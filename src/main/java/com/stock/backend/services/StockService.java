@@ -93,8 +93,7 @@ public class StockService {
 
             stockRepository.save(newStock);
             return newStock;
-        }
-        else if (!afterTransaction) {
+        } else if (!afterTransaction) {
             // user has triggered a manual API update
             // set with the latest data and save in repository
             // TODO Attach personal API token
@@ -109,9 +108,7 @@ public class StockService {
 
             stockRepository.save(previouslySaved.get());
             return previouslySaved.get();
-        }
-
-        else {
+        } else {
             previouslySaved.get().setPrice(stockDTO.getPrice());
             previouslySaved.get().setLastUpdate(System.currentTimeMillis());
 
