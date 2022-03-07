@@ -10,7 +10,7 @@ services:
 
   backend:
     build: .
-    image: nikolayordanov/stockbackend
+    image: stockbackend
     container_name: stockBACKEND
     restart: always
     ports:
@@ -23,6 +23,22 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3001:3000"
+
 networks:
   default:
-    name: stock
+      name: stock
