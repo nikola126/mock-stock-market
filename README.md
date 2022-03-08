@@ -12,6 +12,13 @@ Every user can look at his portfolio, request real-time updates on stock value i
 A basic set of account operations are allowed - a user can change his display name, password, add additional funds ("capital") to his account or register an IEX Cloud API Token, which will be used on any operations, requiring interaction with the API. (_Usually a default development API token is used for all users, which might lead to exhaustion of specific API call limit, provided enough users are using the application_).
 
 ---
+**Deployment**
+
+- Deployed on **Digital Ocean** Droplet at http://159.223.28.181/
+- Frontend and Backend applications are containerized using **Docker**
+- Default access (admin/admin) to **Grafana**
+
+
 **Backend**
 
 https://github.com/nikola126/mock-stock-market
@@ -20,6 +27,7 @@ https://github.com/nikola126/mock-stock-market
 - Implemented using **Spring** and **Hibernate**
 - Using **PostgreSQL** for database
 - Unit tests using **JUnit** and **Mockito**
+- Basic operation monitoring using **Prometheus** and **Grafana** 
 - Tests and code-quality checks triggered on push using **GitHub Actions**
   
 **Frontend**
@@ -28,12 +36,6 @@ https://github.com/nikola126/mock-stock-market-frontend
 
 -  Implemented using **Javascript** and **React** </li>
 -  Using **MUI** as UI library </li>
-
-
-**Deployment**
-
--  Deployed on **Digital Ocean** Droplet at http://159.223.28.181/
--  Frontend and Backend applications are containerized using **Docker**
 
 
 **Work in Progress**
