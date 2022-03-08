@@ -21,6 +21,7 @@ import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.TransactionRepository;
+import io.micrometer.core.annotation.Counted;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class TransactionService {
         this.apiController = apiController;
     }
 
+    @Counted(value = "TransactionGet.Count", description = "Number of Transaction Get requests")
     public Page<TransactionDTO> getAllForUser(TransactionSummaryDTO transactionSummaryDTO, Pageable pageable) {
         Page<Transaction> transactions;
 
@@ -60,6 +62,7 @@ public class TransactionService {
         return transactions.map(Transaction::mapToDTO);
     }
 
+    @Counted(value = "TransactionSave.Count", description = "Number of Transaction Save requests")
     public void addTransaction(TransactionDTO transactionDTO)
         throws InsufficientFundsException, InvalidActionException, InsufficientAssetsException, ApiException {
         // get user

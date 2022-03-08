@@ -12,3 +12,9 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['stockBACKEND:8080']
+
+  - job_name: 'spring-metrics'
+    metrics_path: '/actuator/metrics' # Job to scrape custom metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['stockBACKEND:8080']

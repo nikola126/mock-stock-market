@@ -13,6 +13,7 @@ import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.UserRepository;
+import io.micrometer.core.annotation.Counted;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +29,7 @@ public class AssetService {
         this.userRepository = userRepository;
     }
 
+    @Counted(value = "AssetGet.Count", description = "Number of Asset Get requests")
     public List<Asset> getAllForUser(UserDTO userDTO) {
         List<Asset> assetList = assetsRepository.getByUserId(userDTO.getId());
         return assetList;
@@ -43,6 +45,7 @@ public class AssetService {
         assetsRepository.save(newAsset);
     }
 
+    @Counted(value = "AssetSaveUpdate.Count", description = "Number of Asset Save/Update requests")
     public void saveOrUpdateAsset(UserDTO userDTO, TransactionDTO transactionDTO) {
 
         Optional<Stock> stockOptional = stockRepository.getBySymbol(transactionDTO.getSymbol());

@@ -20,6 +20,7 @@ import com.stock.backend.models.Transaction;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.TransactionRepository;
 import com.stock.backend.repositories.UserRepository;
+import io.micrometer.core.annotation.Counted;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,6 +48,7 @@ public class UserService {
         return userRepository.getByUsernameAndPassword(userName, password);
     }
 
+    @Counted(value = "Login.Count", description = "Number of login requests")
     public User login(LoginUserDTO loginUserDTO) throws UserNotFoundException {
         Optional<User> user = getByUsernameAndPassword(loginUserDTO.getUsername(), loginUserDTO.getPassword());
 

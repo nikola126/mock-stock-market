@@ -13,6 +13,7 @@ import com.stock.backend.models.Stock;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.UserRepository;
+import io.micrometer.core.annotation.Counted;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class StockService {
         this.apiController = apiController;
     }
 
+    @Counted(value = "StockGet.Count", description = "Number of Stock Get requests")
     public QuoteDTO getStock(QuoteRequestDTO quoteRequestDTO) {
         // attach API token if userId is provided
         if (quoteRequestDTO.getUserId() != null) {
@@ -63,6 +65,7 @@ public class StockService {
         return quoteDTO;
     }
 
+    @Counted(value = "StockSaveUpdate.Count", description = "Number of Stock Save/Update requests")
     public Stock saveOrUpdateStock(StockDTO stockDTO, Boolean afterTransaction) {
         Optional<Stock> previouslySaved = stockRepository.getBySymbol(stockDTO.getSymbol());
 
