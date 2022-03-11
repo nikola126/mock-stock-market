@@ -25,7 +25,7 @@ public class StockService {
 
     private final ApiConfiguration apiConfiguration = new ApiConfiguration();
 
-    private final Integer updateTimeIntervalMs = 1000 * 60 * 15;
+    private final Integer updateTimeIntervalMs = 1000 * 60 * 30;
 
     public StockService(UserRepository userRepository, StockRepository stockRepository, ApiController apiController) {
         this.userRepository = userRepository;

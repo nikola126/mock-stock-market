@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public final class ApiConfiguration {
-    private final String defaultToken = "pk_7f87328a7eb7494fb3ded2a0e2bdfcf2";
+    private final String defaultToken = "pk_b6e3d012a5f24e6a8b86640b97423948";
     private final String apiQuotePath = "https://cloud.iexapis.com/stable/stock/";
 }

@@ -35,6 +35,11 @@ public class TransactionController {
         return transactionService.getAllForUser(transactionSummaryDTO, pageable);
     }
 
+    @PostMapping(path = "/get/unpaged")
+    public Page<TransactionDTO> getAllForUserUnpaged(@RequestBody TransactionSummaryDTO transactionSummaryDTO) {
+        return transactionService.getAllForUser(transactionSummaryDTO, Pageable.unpaged());
+    }
+
     @PostMapping(path = "/add")
     public void addTransaction(@RequestBody TransactionDTO transactionDTO) {
         try {
