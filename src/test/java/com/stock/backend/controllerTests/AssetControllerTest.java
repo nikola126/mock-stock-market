@@ -5,8 +5,6 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 
 import com.stock.backend.controllers.AssetController;
-import com.stock.backend.dtos.AssetDTO;
-import com.stock.backend.dtos.QuoteDTO;
 import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.services.AssetService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class AssetControllerTest {
@@ -31,6 +31,8 @@ public class AssetControllerTest {
 
     @Captor
     ArgumentCaptor<UserDTO> userDTOArgumentCaptor;
+    @Captor
+    ArgumentCaptor<Pageable> pageableArgumentCaptor;
 
     @BeforeEach
     void setup() {
@@ -44,5 +46,16 @@ public class AssetControllerTest {
         assetController.getAllForUser(userDTO);
 
         verify(assetService).getAllForUser(userDTO);
+    }
+
+    @Test
+    void getHotlist() {
+        Page hotlistPage = Mockito.mock(Page.class);
+        Pageable pageable = Mockito.mock(Pageable.class);
+
+        Mockito.when(assetService.getHotlist(pageableArgumentCaptor.capture())).thenReturn(hotlistPage);
+        assetController.getHotlist(pageable);
+
+        verify(assetService).getHotlist(pageable);
     }
 }

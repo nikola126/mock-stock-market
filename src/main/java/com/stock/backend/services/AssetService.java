@@ -8,12 +8,15 @@ import com.stock.backend.dtos.TransactionDTO;
 import com.stock.backend.dtos.UserDTO;
 import com.stock.backend.enums.Actions;
 import com.stock.backend.models.Asset;
+import com.stock.backend.models.HotListEntry;
 import com.stock.backend.models.Stock;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
 import com.stock.backend.repositories.UserRepository;
 import io.micrometer.core.annotation.Counted;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -87,4 +90,7 @@ public class AssetService {
 
     }
 
+    public Page<HotListEntry> getHotlist(Pageable pageable) {
+        return assetsRepository.getHotlist(pageable);
+    }
 }

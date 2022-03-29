@@ -27,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class AssetServiceTest {
@@ -137,6 +139,17 @@ public class AssetServiceTest {
         assetService.saveOrUpdateAsset(userDTO, transactionDTO);
 
         verify(assetRepository).delete(asset);
+    }
+
+    @Test
+    void getHotList() {
+        Page page = Mockito.mock(Page.class);
+        Pageable pageable = Mockito.mock(Pageable.class);
+
+        Mockito.when(assetRepository.getHotlist(pageable)).thenReturn(page);
+        assetService.getHotlist(pageable);
+
+        verify(assetRepository).getHotlist(pageable);
     }
 
 
