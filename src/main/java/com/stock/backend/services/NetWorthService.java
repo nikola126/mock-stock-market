@@ -24,6 +24,13 @@ public class NetWorthService {
         return netWorthRepository.findByUserIdOrderByDateAsc(userId);
     }
 
+    public Double getCurrentNetWorthByUserId(Long userId) {
+        Double netWorth = 0.0;
+        netWorth += userRepository.getById(userId).getCapital();
+        netWorth += netWorthRepository.getNetworth(userId);
+        return netWorth;
+    }
+
     @Scheduled(fixedDelay = 1000 * 60 * 60 * 12, initialDelay = 1000 * 60 * 5)
     public void scheduledNetworthUpdate() {
         List<User> userList = userRepository.findAll();

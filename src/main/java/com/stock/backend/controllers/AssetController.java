@@ -40,8 +40,13 @@ public class AssetController {
     }
 
     @PostMapping(path = "/networth")
-    public List<NetWorthDTO> getNetworthGraph(@RequestBody NetWorthRequestDTO netWorthRequestDTO) {
+    public List<NetWorthDTO> getHistoricalNetworth(@RequestBody NetWorthRequestDTO netWorthRequestDTO) {
         return netWorthService.getNetWorthByUserId(netWorthRequestDTO.getUserId()).stream().map(NetWorth::mapToDTO).toList();
+    }
+
+    @PostMapping(path = "/networth/current")
+    public Double getCurrentNetworth(@RequestBody NetWorthRequestDTO netWorthRequestDTO) {
+        return netWorthService.getCurrentNetWorthByUserId(netWorthRequestDTO.getUserId());
     }
 
 }
