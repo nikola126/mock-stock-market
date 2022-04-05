@@ -41,10 +41,16 @@ public class Asset {
     @Column
     private Integer shares;
 
+    private Double currentReturn;
+
+    private Double totalCost;
+
     public AssetDTO mapToDTO() {
         AssetDTO assetDTO = new AssetDTO();
         assetDTO.setStock(this.getStock().mapToDTO());
         assetDTO.setShares(this.getShares());
+        assetDTO.setCurrentReturn(this.getCurrentReturn());
+        assetDTO.setTotalCost(this.getTotalCost());
 
         return assetDTO;
     }

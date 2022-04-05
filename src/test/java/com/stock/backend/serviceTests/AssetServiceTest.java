@@ -15,6 +15,7 @@ import com.stock.backend.models.Stock;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
+import com.stock.backend.repositories.TransactionRepository;
 import com.stock.backend.repositories.UserRepository;
 import com.stock.backend.services.AssetService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,8 @@ public class AssetServiceTest {
     @Mock
     AssetRepository assetRepository;
     @Mock
+    TransactionRepository transactionRepository;
+    @Mock
     StockRepository stockRepository;
     @Mock
     UserRepository userRepository;
@@ -55,7 +58,7 @@ public class AssetServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        assetService = new AssetService(assetRepository, stockRepository, userRepository);
+        assetService = new AssetService(assetRepository, transactionRepository, stockRepository, userRepository);
 
         asset = new Asset();
         asset.setUser(new User());
@@ -67,7 +70,12 @@ public class AssetServiceTest {
     @Test
     void returnListOfAssets() {
         ArrayList<Asset> nonEmptyListOfAssets = new ArrayList<>();
-        nonEmptyListOfAssets.add(new Asset());
+        Stock stock = new Stock();
+        stock.setPrice(0.0);
+        Asset asset = new Asset();
+        asset.setStock(stock);
+        asset.setShares(0);
+        nonEmptyListOfAssets.add(asset);
 
         Mockito.when(assetRepository.getByUserId(longArgumentCaptor.capture())).thenReturn(nonEmptyListOfAssets);
 

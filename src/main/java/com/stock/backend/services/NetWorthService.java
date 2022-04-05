@@ -31,7 +31,7 @@ public class NetWorthService {
         return netWorth;
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 * 60 * 12, initialDelay = 1000 * 60 * 5)
+    @Scheduled(fixedDelay = 1000 * 60 * 60 * 4, initialDelay = 1000 * 60 * 2)
     public void scheduledNetworthUpdate() {
         List<User> userList = userRepository.findAll();
 

@@ -27,4 +27,17 @@ public interface TransactionRepository
 
     @EntityGraph(value = "stock.id", type = EntityGraph.EntityGraphType.FETCH)
     List<Transaction> getAllByStockId(Integer id);
+
+    @Query(value = "SELECT " +
+        "SUM(" +
+        "CASE action " +
+        "WHEN 1 THEN (price * shares) " +
+        "WHEN 0 THEN -(price * shares) " +
+        "ELSE 0 " +
+        "END) " +
+        "AS total_return " +
+        "FROM transactions " +
+        "WHERE user_id = :userId " +
+        "AND company_id = :companyId", nativeQuery = true)
+    Double getTotalCost(@Param("userId") Long userId, @Param("companyId") Long companyId);
 }

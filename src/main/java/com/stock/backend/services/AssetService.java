@@ -13,6 +13,7 @@ import com.stock.backend.models.Stock;
 import com.stock.backend.models.User;
 import com.stock.backend.repositories.AssetRepository;
 import com.stock.backend.repositories.StockRepository;
+import com.stock.backend.repositories.TransactionRepository;
 import com.stock.backend.repositories.UserRepository;
 import io.micrometer.core.annotation.Counted;
 import org.springframework.data.domain.Page;
@@ -22,12 +23,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AssetService {
     private final AssetRepository assetsRepository;
+    private final TransactionRepository transactionRepository;
     private final StockRepository stockRepository;
     private final UserRepository userRepository;
 
-    public AssetService(AssetRepository assetsRepository, StockRepository stockRepository,
+    public AssetService(AssetRepository assetsRepository, TransactionRepository transactionRepository,
+                        StockRepository stockRepository,
                         UserRepository userRepository) {
         this.assetsRepository = assetsRepository;
+        this.transactionRepository = transactionRepository;
         this.stockRepository = stockRepository;
         this.userRepository = userRepository;
     }
@@ -35,14 +39,19 @@ public class AssetService {
     @Counted(value = "AssetGet.Count", description = "Number of Asset Get requests")
     public List<Asset> getAllForUser(UserDTO userDTO) {
         List<Asset> assetList = assetsRepository.getByUserId(userDTO.getId());
+        for (Asset asset : assetList) {
+            asset.setCurrentReturn(asset.getShares() * asset.getStock().getPrice());
+            asset.setTotalCost(transactionRepository.getTotalCost(userDTO.getId(), asset.getStock().getId()));
+        }
         return assetList;
     }
 
     public void saveAsset(UserDTO userDTO, TransactionDTO transactionDTO) {
         Asset newAsset = new Asset();
+        Stock stock = stockRepository.getBySymbol(transactionDTO.getSymbol()).get();
 
         newAsset.setUser(userRepository.getById(userDTO.getId()));
-        newAsset.setStock(stockRepository.getBySymbol(transactionDTO.getSymbol()).get());
+        newAsset.setStock(stock);
         newAsset.setShares(transactionDTO.getShares());
 
         assetsRepository.save(newAsset);
@@ -87,7 +96,6 @@ public class AssetService {
                 assetsRepository.save(assetToEdit);
             }
         }
-
     }
 
     public Page<HotListEntry> getHotlist(Pageable pageable) {

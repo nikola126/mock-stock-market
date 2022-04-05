@@ -12,4 +12,6 @@ import lombok.ToString;
 public class AssetDTO {
     private StockDTO stock;
     private Integer shares;
+    private Double currentReturn;
+    private Double totalCost;
 }
